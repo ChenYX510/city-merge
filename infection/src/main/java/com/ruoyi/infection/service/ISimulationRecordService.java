@@ -11,9 +11,9 @@ import java.util.List;
 
 public interface ISimulationRecordService {
     List<Long> getIdsByCity(String city,String userId);
-    List<CitySimulationResult> getCitySimulationResults(String userId);
-    List<CitySimulationResult> getCitySimulationLockResults(String userId);
-    List<CitySimulationResult> getCitySimulationMADDPGResults(String userId);
+    Map<String, Object> getCitySimulationResults(String userId);
+    Map<String, Object> getCitySimulationLockResults(String userId);
+    Map<String, Object> getCitySimulationMADDPGResults(String userId);
     Map<String, Object> getSimulationResult(String city, int simulationDay, int simulationHour, String simulationFileName,String userId);
     Map<String, Object> getLockSimulationResult(String city, int simulationDay, int simulationHour, String simulationFileName,String userId);
     Map<String, Object> getSimulationRiskPoints(String city, int simulationDay, int simulationHour, int thresholdInfected, String simulationFileName,String userId);

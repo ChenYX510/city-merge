@@ -37,15 +37,15 @@ public class SimulationRecordController {
         return response;
     }
     @PostMapping("/inquire_city_simulation_result")
-    public List<CitySimulationResult> inquireCitySimulationResult(@RequestParam String userId) {
+    public Map<String, Object> inquireCitySimulationResult(@RequestParam String userId) {
         return simulationRecordService.getCitySimulationResults(userId);
     }
     @PostMapping("/inquire_city_simulation_lock_result")
-    public List<CitySimulationResult> inquireCitySimulationLockResult(@RequestParam String userId) {
+    public Map<String, Object> inquireCitySimulationLockResult(@RequestParam String userId) {
         return simulationRecordService.getCitySimulationLockResults(userId);
     }
     @PostMapping("/query_city_simulation_MADDPG_result")
-    public List<CitySimulationResult> quireCitySimulationMADDPGResult(@RequestParam String userId) {
+    public Map<String, Object> quireCitySimulationMADDPGResult(@RequestParam String userId) {
         return simulationRecordService.getCitySimulationMADDPGResults(userId);
     }
     @PostMapping("/get_simulation_result")

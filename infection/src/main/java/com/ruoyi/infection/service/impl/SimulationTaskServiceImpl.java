@@ -3,6 +3,7 @@ package com.ruoyi.infection.service.impl;
 import com.ruoyi.infection.domain.SimulationTask;
 import com.ruoyi.infection.service.ISimulationTaskService;
 import com.ruoyi.infection.mapper.SimulationTaskMapper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -16,6 +17,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +33,8 @@ public class SimulationTaskServiceImpl implements ISimulationTaskService {
     private static final Logger logger = Logger.getLogger(SimulationTaskServiceImpl.class.getName());
     private final ExecutorService executor = Executors.newFixedThreadPool(2); // 线程池
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor(); // 或根据需求选择线程池大小
 
     @Override
     public Map<String, Object> unlockSimulationTask(SimulationTask request) {
@@ -74,11 +78,71 @@ public class SimulationTaskServiceImpl implements ISimulationTaskService {
             } else {
                 logger.warning("Failed to save database record for simulation: " + simulation_city);
             }
-            // 启动模拟任务
-            //startSimulationTask(request);
-            //executor.submit(() -> runSimulationTask(request));
-            // result.put("status", true);
-            // 调用 Python 脚本
+
+            System.out.println("R0: " + R0 + ", I_H_para: " + I_H_para + ", I_R_para: " + I_R_para + ", H_R_para: " + H_R_para + ", I_input: " + I_input + ", region_list: " + region_list + ", simulation_days: " + simulation_days + ", simulation_city: " + simulation_city + ", curDirName: " + curDirName + ", userId: " + userId);
+
+            final String final_I_input = I_input;
+            final String final_curDirName = curDirName;
+            final Integer final_resultId = resultId;
+            // 异步调用 Python 脚本
+            CompletableFuture<Boolean> pythonExecutionFuture = CompletableFuture.supplyAsync(() -> {
+                return unlockSimulationPythonScript(
+                        ROOT_FILE_PATH + "simulate.py",  // 替换为 Python 脚本路径
+                        R0, I_H_para, I_R_para, H_R_para, final_I_input, region_list, simulation_days, simulation_city, final_curDirName, userId
+                );
+            });
+
+            pythonExecutionFuture.thenAcceptAsync(pythonExecutionStatus -> {
+                if (pythonExecutionStatus) {
+                    // 脚本执行成功后更新数据库
+                    boolean dbUpdateStatus = modifyStatus(final_resultId, "none_type", final_curDirName);
+                    if (dbUpdateStatus) {
+                        logger.info("Database status updated successfully for simulation: " + simulation_city);
+                    } else {
+                        logger.warning("Failed to update database status for simulation: " + simulation_city);
+                    }
+                    result.put("status", false);
+                    result.put("msg", "Success to start simulation");
+                } else {
+                    result.put("status", false);
+                    result.put("msg", "Failed to start simulation");
+                }
+            }).exceptionally(ex -> {
+                // 处理异常情况
+                result.put("status", false);
+                result.put("msg", "Error executing Python script: " + ex.getMessage());
+                return null;
+            });
+
+            // 开始进行强化学习的策略生成（异步调用）
+            String policyCurDir = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss"));
+            CompletableFuture<Boolean> madDPGFuture = CompletableFuture.supplyAsync(() -> {
+                return generateMADDPGPolicy(ROOT_FILE_PATH + "maddpgPolicy.py", userId, simulation_city, simulation_days, policyCurDir, final_curDirName);
+            });
+
+            madDPGFuture.thenAcceptAsync(madDPGStatus -> {
+                if (madDPGStatus) {
+                    logger.info("MADDPG policy started successfully");
+
+                    // 记录决策结束的时间
+                    String MADDPG_policy_end_time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss"));
+                    Boolean dbUpdateStatus = updatePolicyRecords(userId, policyCurDir, policyCurDir, MADDPG_policy_end_time, final_resultId);
+                    if (dbUpdateStatus) {
+                        logger.info("Database status updated successfully for MADDPG policy: " + simulation_city);
+                    } else {
+                        logger.warning("Failed to update database status for MADDPG policy: " + simulation_city);
+                    }
+                } else {
+                    logger.warning("MADDPG policy failed");
+                }
+            }).exceptionally(ex -> {
+                // 处理强化学习脚本执行的异常
+                logger.warning("Error executing MADDPG Python script: " + ex.getMessage());
+                return null;
+            });
+        }
+
+/*            // 调用 Python 脚本
             boolean pythonExecutionStatus = unlockSimulationPythonScript(
                     ROOT_FILE_PATH + "simulate.py", // 替换为 Python 脚本路径
                     R0, I_H_para, I_R_para, H_R_para, I_input, region_list, simulation_days, simulation_city, curDirName, userId
@@ -105,9 +169,9 @@ public class SimulationTaskServiceImpl implements ISimulationTaskService {
         } else {
             logger.warning("Failed to update database status for simulation: " + simulation_city);
         }
-        result.put("msg", msg);
+        result.put("msg", msg);*/
 
-        // 开始进行强化学习的策略生成
+        /*// 开始进行强化学习的策略生成
         String policyCurDir = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss"));
         // 调用python脚本
         boolean MADDPGStatus = generateMADDPGPolicy(ROOT_FILE_PATH + "maddpgPolicy.py", userId, simulation_city, simulation_days, policyCurDir, curDirName);
@@ -119,13 +183,14 @@ public class SimulationTaskServiceImpl implements ISimulationTaskService {
 
         // 记录决策结束的时间
         String MADDPG_policy_end_time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss"));
-        dbUpdateStatus = updatePolicyRecords(userId, policyCurDir, policyCurDir, MADDPG_policy_end_time, resultId);
+        Boolean dbUpdateStatus = updatePolicyRecords(userId, policyCurDir, policyCurDir, MADDPG_policy_end_time, resultId);
         if (dbUpdateStatus) {
             logger.info("Database status updated successfully for simulation: " + simulation_city);
         } else {
             logger.warning("Failed to update database status for simulation: " + simulation_city);
         }
-
+*/
+        result.put("status", true);
         return result;
     }
 

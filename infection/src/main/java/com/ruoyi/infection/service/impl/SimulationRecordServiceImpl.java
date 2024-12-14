@@ -52,8 +52,9 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
         return simulationRecordMapper.selectIdsByCity(city);
     }
        @Override
-    public List<CitySimulationResult> getCitySimulationResults(String userId) {
+    public Map<String, Object> getCitySimulationResults(String userId) {
         String dirPath = ROOT_FILE+userId+"\\"+"SimulationResult"+"\\"+"unlock_result"+"\\";
+        Map<String, Object> resultMap = new HashMap<>();
         List<CitySimulationResult> citySimulationResults = new ArrayList<>();
 
         for (String city : CITY_NAMES) {
@@ -71,12 +72,18 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
                     try {
                         // 读取 JSON 文件的内容并转换为字符串
                         String jsonContent = new String(Files.readAllBytes(Paths.get(dataFilePath)));
-                        record.setParaJson(jsonContent);  // 将 JSON 内容存储在 paraJson 字段中
+                        // 将 JSON 字符串转换为 JSONObject
+                        JSONObject jsonObject = JSONObject.parseObject(jsonContent);
+
+                        // 设置 paraJson 为 JSONObject 格式
+                        record.setParaJson(jsonObject);
                     } catch (IOException e) {
-                        record.setParaJson("读时出错 JSON file: " + e.getMessage());
+                        JSONObject msg = JSONObject.parseObject("读时出错 JSON file: " + e.getMessage());
+                        record.setParaJson(msg);
                     }
                 } else {
-                    record.setParaJson("没有找到 data.json 文件");
+                    JSONObject msg = JSONObject.parseObject("没有找到 data.json 文件");
+                    record.setParaJson(msg);
                 }
             }
            
@@ -88,11 +95,16 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
             citySimulationResults.add(result);
         }
 
-        return citySimulationResults;
+        // 填充返回的 Map 数据
+        resultMap.put("msg", "success");
+        resultMap.put("simulation_task", citySimulationResults);
+
+        return resultMap;
     }
     @Override
-    public List<CitySimulationResult> getCitySimulationLockResults(String userId) {
+    public Map<String, Object> getCitySimulationLockResults(String userId) {
         String dirPath = ROOT_FILE+userId+"\\"+"SimulationResult"+"\\"+"lock_result"+"\\";
+        Map<String, Object> resultMap = new HashMap<>();
         List<CitySimulationResult> citySimulationResults = new ArrayList<>();
 
         for (String city : CITY_NAMES) {
@@ -110,12 +122,18 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
                     try {
                         // 读取 JSON 文件的内容并转换为字符串
                         String jsonContent = new String(Files.readAllBytes(Paths.get(dataFilePath)));
-                        record.setParaJson(jsonContent);  // 将 JSON 内容存储在 paraJson 字段中
+                        // 将 JSON 字符串转换为 JSONObject
+                        JSONObject jsonObject = JSONObject.parseObject(jsonContent);
+
+                        // 设置 paraJson 为 JSONObject 格式
+                        record.setParaJson(jsonObject);
                     } catch (IOException e) {
-                        record.setParaJson("读时出错 JSON file: " + e.getMessage());
+                        JSONObject msg = JSONObject.parseObject("读时出错 JSON file: " + e.getMessage());
+                        record.setParaJson(msg);
                     }
                 } else {
-                    record.setParaJson("没有找到 data.json 文件");
+                    JSONObject msg = JSONObject.parseObject("没有找到 data.json 文件");
+                    record.setParaJson(msg);
                 }
             }
 
@@ -126,12 +144,16 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
 
             citySimulationResults.add(result);
         }
+        // 填充返回的 Map 数据
+        resultMap.put("msg", "success");
+        resultMap.put("simulation_task", citySimulationResults);
 
-        return citySimulationResults;
+        return resultMap;
     }
     @Override
-    public List<CitySimulationResult> getCitySimulationMADDPGResults(String userId) {
+    public Map<String, Object> getCitySimulationMADDPGResults(String userId) {
         String dirPath = ROOT_FILE+userId+"\\"+"SimulationResult"+"\\"+"MADDPG_result"+"\\";
+        Map<String, Object> resultMap = new HashMap<>();
         List<CitySimulationResult> citySimulationResults = new ArrayList<>();
 
         for (String city : CITY_NAMES) {
@@ -149,12 +171,18 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
                     try {
                         // 读取 JSON 文件的内容并转换为字符串
                         String jsonContent = new String(Files.readAllBytes(Paths.get(dataFilePath)));
-                        record.setParaJson(jsonContent);  // 将 JSON 内容存储在 paraJson 字段中
+                        // 将 JSON 字符串转换为 JSONObject
+                        JSONObject jsonObject = JSONObject.parseObject(jsonContent);
+
+                        // 设置 paraJson 为 JSONObject 格式
+                        record.setParaJson(jsonObject);
                     } catch (IOException e) {
-                        record.setParaJson("读时出错 JSON file: " + e.getMessage());
+                        JSONObject msg = JSONObject.parseObject("读时出错 JSON file: " + e.getMessage());
+                        record.setParaJson(msg);
                     }
                 } else {
-                    record.setParaJson("没有找到 data.json 文件");
+                    JSONObject msg = JSONObject.parseObject("没有找到 data.json 文件");
+                    record.setParaJson(msg);
                 }
             }
 
@@ -165,8 +193,11 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
 
             citySimulationResults.add(result);
         }
+        // 填充返回的 Map 数据
+        resultMap.put("msg", "success");
+        resultMap.put("simulation_task", citySimulationResults);
 
-        return citySimulationResults;
+        return resultMap;
     }
         @Override
     public Map<String, Object> getSimulationResult(String city, int simulationDay, int simulationHour, String simulationFileName,String userId) {

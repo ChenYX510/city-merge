@@ -1,9 +1,11 @@
 package com.ruoyi.infection.domain;
 
+import com.alibaba.fastjson2.JSONObject;
+
 public class SimulationcityRecord {
     private String simulationTime;
     private String taskState;
-    private String paraJson;
+    private JSONObject paraJson;
 
     // Getters and Setters
     public String getSimulationTime() {
@@ -22,11 +24,11 @@ public class SimulationcityRecord {
         this.taskState = taskState;
     }
 
-    public String getParaJson() {
+    public JSONObject getParaJson() {
         return paraJson;
     }
 
-    public void setParaJson(String paraJson) {
+    public void setParaJson(JSONObject paraJson) {
         this.paraJson = paraJson;
     }
 }

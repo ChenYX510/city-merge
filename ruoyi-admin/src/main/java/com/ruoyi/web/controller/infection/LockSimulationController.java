@@ -19,7 +19,7 @@ public class LockSimulationController {
     @PostMapping("/get_lock_every_hour_infection")
     public Object getLockEveryHourInfection(@RequestParam String city,@RequestParam String userId,
                                             @RequestParam(required = false, defaultValue = "latestRecord") String simulationFileName) {
-        List<Double> result = lockSimulationService.getLockEveryHourInfection(city,userId, simulationFileName);
+        Map<String, Object> result = lockSimulationService.getLockEveryHourInfection(city,userId, simulationFileName);
         if (result == null) {
             return "没有最新的模拟记录";
         }
@@ -28,7 +28,7 @@ public class LockSimulationController {
     @PostMapping("/get_every_hour_infection")
     public Object getEveryHourInfection(@RequestParam String city,@RequestParam String userId,
                                             @RequestParam(required = false, defaultValue = "latestRecord") String simulationFileName) {
-        List<Double> result = lockSimulationService.getEveryHourInfection(city,userId, simulationFileName);
+        Map<String, Object> result = lockSimulationService.getEveryHourInfection(city,userId, simulationFileName);
         if (result == null) {
             return "没有最新的模拟记录";
         }
@@ -37,7 +37,7 @@ public class LockSimulationController {
     @PostMapping("/get_MADDPG_every_hour_result")
     public Object get_MADDPG_every_hour_result(@RequestParam String city,@RequestParam String userId,
                                             @RequestParam(required = false, defaultValue = "latestRecord") String simulationFileName) {
-        List<Double> result = lockSimulationService.getMADDPGEveryHourInfection(city,userId, simulationFileName);
+        Map<String, Object> result = lockSimulationService.getMADDPGEveryHourInfection(city,userId, simulationFileName);
         if (result == null) {
             return "没有最新的模拟记录";
         }

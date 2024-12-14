@@ -33,7 +33,7 @@ public class LockSimulationServiceImpl implements ILockSimulationService {
     private static final String ROOT_FILE_PATH = System.getProperty("user.dir") + "\\testUser\\";
 
     @Override
-    public List<Double> getLockEveryHourInfection(String city,String userId, String simulationFileName) {
+    public Map<String, Object> getLockEveryHourInfection(String city,String userId, String simulationFileName) {
         String dir = ROOT_FILE_PATH+userId + "\\" + "SimulationResult" +  "\\"+"lock_result\\"+city + "\\";
         if (Objects.equals(simulationFileName, "latestRecord")) {
             List<Long> ids = lockSimulationRecordMapper.selectIdsByCity(city,userId);
@@ -52,17 +52,19 @@ public class LockSimulationServiceImpl implements ILockSimulationService {
         // Load data from CSV files
         List<Double> result = new ArrayList<>();// 用于存储每个文件中 "I" 列的总和
         int curHour = 0;
-        while (new File(dir + "SIHR_" + curHour + ".csv").exists()) {
-            double sum = loadAndSumInfections(dir + "SIHR_" + curHour + ".csv");
+        while (new File(dir + "simulation_DSIHR_result_" + curHour + ".csv").exists()) {
+            double sum = loadAndSumInfections(dir + "simulation_DSIHR_result_" + curHour + ".csv");
             result.add(sum*0.8 );
             curHour++;
         }
+        Map<String, Object> response = new HashMap<>();
+        response.put("result", result);
 
-        return result;
+        return response;
     }
 
     @Override
-    public List<Double> getEveryHourInfection(String city, String userId,String simulationFileName) {
+    public Map<String, Object> getEveryHourInfection(String city, String userId,String simulationFileName) {
         String dir = ROOT_FILE_PATH+userId + "\\" + "SimulationResult" +  "\\"+"unlock_result\\"+city + "\\";
         if (Objects.equals(simulationFileName, "latestRecord")) {
             List<Long> ids = lockSimulationRecordMapper.selectIdByCity(city,userId);
@@ -81,16 +83,22 @@ public class LockSimulationServiceImpl implements ILockSimulationService {
         // Load data from CSV files
         List<Double> result = new ArrayList<>();
         int curHour = 0;
-        while (new File(dir + "SIHR_" + curHour + ".csv").exists()) {
-            double sum = loadAndSumInfections(dir + "SIHR_" + curHour + ".csv");
-            result.add(sum );
+        System.out.println("文件路径："+dir + "simulation_DSIHR_result_" + curHour + ".csv");
+        while (new File(dir + "simulation_DSIHR_result_" + curHour + ".csv").exists()) {
+            System.out.println("文件存在！");
+            double sum = loadAndSumInfections(dir + "simulation_DSIHR_result_" + curHour + ".csv");
+
             curHour++;
+            result.add(sum * 0.8);
         }
 
-        return result;
+        Map<String, Object> response = new HashMap<>();
+        response.put("result", result);
+
+        return response;
     }
     @Override
-    public List<Double> getMADDPGEveryHourInfection(String city, String userId,String simulationFileName) {
+    public Map<String, Object> getMADDPGEveryHourInfection(String city, String userId,String simulationFileName) {
         String dir = ROOT_FILE_PATH+userId + "\\" + "SimulationResult" +  "\\"+"MADDPG_result\\"+city + "\\";
         if (Objects.equals(simulationFileName, "latestRecord")) {
             List<Long> ids = lockSimulationRecordMapper.selectMADDPGIdByCity(city,userId);
@@ -140,8 +148,10 @@ public class LockSimulationServiceImpl implements ILockSimulationService {
             }
             curHour++;
         }
+        Map<String, Object> response = new HashMap<>();
+        response.put("result", result);
 
-        return result;
+        return response;
     }
 
 

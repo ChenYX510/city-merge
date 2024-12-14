@@ -17,6 +17,7 @@ public class SimulationTaskController {
     @PostMapping("/grid_simulation")
     public AjaxResult simulate(@RequestBody SimulationTask request) {
         try {
+            //System.out.println("测试输入"+request);
             Map<String, Object> result = simulationTaskService.unlockSimulationTask(request);
             return AjaxResult.success(result);
         } catch (Exception e) {
