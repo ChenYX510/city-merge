@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ruoyi.infection.mapper.LockSimulationTimeRecordMapper">
+    <select id="selectMaxId" resultType="Integer">
+        SELECT MAX(lock_result_id) FROM infection_lock_simulation_result
+        WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insertLockSimulationTimeRecord">
+        INSERT INTO infection_lock_simulation_result (lock_result_id, lock_region_start_time, lock_region_end_time, simulation_end_time, city_name, state, user_id)
+        VALUES (#{id}, #{lockRegionStartTime}, #{lockRegionEndTime}, #{simulationEndTime}, #{city}, #{state}, #{userId})
+    </insert>
+    <!-- 根据时间获取手动封控模拟记录 -->
+    <select id="getLockSimulationTimeByTime" resultType="map">
+        SELECT lock_region_start_time, lock_region_end_time, simulation_end_time
+        FROM infection_lock_simulation_result
+        WHERE lock_region_end_time = #{time} AND user_id = #{userId}
+    </select>
+
+    <!-- 获取最新的手动封控模拟记录 -->
+    <select id="getLatestLockSimulationTime" resultType="map">
+        SELECT lock_region_start_time, lock_region_end_time, simulation_end_time
+        FROM infection_lock_simulation_result
+        WHERE city_name = #{city} AND state = 'True' AND user_id = #{userId}
+        ORDER BY lock_result_id DESC LIMIT 1
+    </select>
+
+    <!-- 根据时间获取自动封控模拟记录 -->
+    <select id="getMaddpgSimulationTimeByTime" resultType="map">
+        SELECT maddpg_start_time, maddpg_end_time, simulation_start_time, simulation_end_time
+        FROM maddpg_simulation_result
+        WHERE simulation_start_time = #{time} AND user_id = #{userId}
+    </select>
+
+    <!-- 获取最新的自动封控模拟记录 -->
+    <select id="getLatestMaddpgSimulationTime" resultType="map">
+        SELECT maddpg_start_time, maddpg_end_time, simulation_start_time, simulation_end_time
+        FROM maddpg_simulation_result
+        WHERE city_name = #{city} AND state = 'True' AND user_id = #{userId}
+        ORDER BY maddpg_result_id DESC LIMIT 1
+    </select>
+        <select id="findLatestSimulationId" resultType="Integer">
+        SELECT MAX(unlock_result_id) FROM infection_unlock_simulation_result WHERE city_name = #{city} AND user_id = #{userId}
+    </select>
+
+    <select id="findFilePathById" resultType="String">
+        SELECT filepath FROM infection_unlock_simulation_result WHERE unlock_result_id = #{id} AND user_id = #{userId}
+    </select>
+     <select id="getLatestSimulationId" resultType="java.lang.Long">
+        SELECT MAX(unlock_result_id) FROM infection_unlock_simulation_result WHERE user_id = #{userId}
+    </select>
+
+    <select id="getPolicyFilePathBySimulationId" resultType="java.lang.String">
+        SELECT filepath FROM maddpg_policy_record WHERE unlock_result_id = #{simulationId}
+    </select>
+
+    <select id="getSimulationIdByFilePath" resultType="java.lang.Long">
+        SELECT unlock_result_id FROM infection_unlock_simulation_result WHERE filepath = #{filePath} AND user_id = #{userId}
+    </select>
+        <select id="getLatestRecordId" resultType="long">
+        SELECT MAX(maddpg_result_id)
+        FROM maddpg_simulation_result
+        WHERE city_name = #{city} AND user_id = #{userId}
+    </select>
+
+    <select id="getFilepathById" resultType="string">
+        SELECT filepath
+        FROM maddpg_simulation_result
+        WHERE maddpg_result_id = #{id}
+    </select>
+</mapper>

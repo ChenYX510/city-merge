@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ruoyi.infection.mapper.UnlockInfectionMapper">
+
+    <select id="selectSimulationResultsByUserId" resultType="com.ruoyi.infection.domain.UnlockSimulation">
+        SELECT
+        u.unlock_result_id AS unlockResultId,
+        COALESCE(ul.filepath) AS filepath,
+        COALESCE(ul.state) AS state,
+        ul.city_name AS cityName
+        FROM
+        user_infection_simulation_result u
+        LEFT JOIN
+        infection_unlock_simulation_result ul ON u.unlock_result_id = ul.unlock_result_id
+        WHERE
+        u.user_id = #{userId}
+    </select>
+
+</mapper>
