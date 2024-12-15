@@ -37,7 +37,7 @@ public class LockTest {
         } else {
             System.out.println("没有该城市的查询结果：" + testCity);
         }*/
-        /*
+        
         String userId="1";
          String city="chongqing";
          Integer simulationDay=1;
@@ -53,6 +53,6 @@ public class LockTest {
          request.setThresholdInfected(thresholdInfected);
          request.setSimulationFileName(simulationFileName);
          Map<String, Object> response = lockSimulationService.getMADDPGRiskPoints(request);
-         System.out.println(response);*/
+         System.out.println(response);
     }
 }

@@ -44,8 +44,13 @@ public class LockSimulationController {
         return result;
     }
     @PostMapping("/get_MADDPG_simulation_risk_point")
-    public ResponseEntity<?> getMADDPGRiskPoints(@RequestBody SimulationRequest request) {
-        Map<String, Object> response = lockSimulationService.getMADDPGRiskPoints(request);
+    public ResponseEntity<?> getMADDPGRiskPoints(@RequestParam("user_id") String userId,
+    @RequestParam("simulation_city") String simulationCity,
+    @RequestParam("simulation_day") int simulationDay,
+    @RequestParam("simulation_hour") int simulationHour,
+    @RequestParam("threshold_infected") int thresholdInfected,
+    @RequestParam(value = "simulation_file_name", required = false, defaultValue = "latestRecord") String simulationFileName) {
+        Map<String, Object> response = lockSimulationService.getMADDPGRiskPoints(userId,simulationCity, simulationDay,simulationHour,thresholdInfected,simulationFileName);
         return ResponseEntity.ok(response);
     }
 }

@@ -3,6 +3,7 @@ import com.ruoyi.infection.domain.SimulationcityRecord;
 import com.ruoyi.infection.domain.CitySimulationResult;
 import com.ruoyi.infection.service.ISimulationRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,58 +50,61 @@ public class SimulationRecordController {
         return simulationRecordService.getCitySimulationMADDPGResults(userId);
     }
     @PostMapping("/get_simulation_result")
-    public Map<String, Object> getSimulationResult(@RequestBody Map<String, Object> requestBody) {
-        String city = (String) requestBody.get("city");
-        int simulationDay = (int) requestBody.get("simulation_day");
-        int simulationHour = (int) requestBody.get("simulation_hour");
-        String simulationFileName = requestBody.containsKey("simulation_file_name") ? (String) requestBody.get("simulation_file_name") : "latestRecord";
-        String userId = (String) requestBody.get("user_id");
-        return simulationRecordService.getSimulationResult(city, simulationDay, simulationHour, simulationFileName,userId);
+    public Map<String, Object> getSimulationResult(
+            @RequestParam("city") String city,
+            @RequestParam("simulation_day") int simulationDay,
+            @RequestParam("simulation_hour") int simulationHour,
+            @RequestParam(value = "simulation_file_name", required = false, defaultValue = "latestRecord") String simulationFileName,
+            @RequestParam("user_id") String userId) {
+        
+        return simulationRecordService.getSimulationResult(city, simulationDay, simulationHour, simulationFileName, userId);
     }
     @PostMapping("/get_lock_simulation_result")
-    public Map<String, Object> getLockSimulationResult(@RequestBody Map<String, Object> requestBody) {
-        String city = (String) requestBody.get("city");
-        int simulationDay = (int) requestBody.get("simulation_day");
-        int simulationHour = (int) requestBody.get("simulation_hour");
-        String simulationFileName = requestBody.containsKey("simulation_file_name") ? (String) requestBody.get("simulation_file_name") : "latestRecord";
-        String userId = (String) requestBody.get("user_id");
-        return simulationRecordService.getLockSimulationResult(city, simulationDay, simulationHour, simulationFileName,userId);
+    public ResponseEntity<Map<String, Object>> getLockSimulationResult(
+            @RequestParam("city") String city,
+            @RequestParam("simulation_day") int simulationDay,
+            @RequestParam("simulation_hour") int simulationHour,
+            @RequestParam(value = "simulation_file_name", required = false, defaultValue = "latestRecord") String simulationFileName,
+            @RequestParam("user_id") String userId) {
+        
+        Map<String, Object> result = simulationRecordService.getLockSimulationResult(city, simulationDay, simulationHour, simulationFileName, userId);
+        return ResponseEntity.ok(result);
     }
     @PostMapping("/get_simulation_risk_point")
-    public Map<String, Object> getSimulationRiskPoints(@RequestBody Map<String, Object> requestBody) {
-        String city = (String) requestBody.get("city");
-        String userId = (String) requestBody.get("user_id");
-        int simulationDay = (int) requestBody.get("simulation_day");
-        int simulationHour = (int) requestBody.get("simulation_hour");
-        int thresholdInfected = (int) requestBody.get("threshold_Infected");
-        String simulationFileName = requestBody.getOrDefault("simulation_file_name", "latestRecord").toString();
-
-        return simulationRecordService.getSimulationRiskPoints(city, simulationDay, simulationHour, thresholdInfected, simulationFileName,userId);
+    public Map<String, Object> getSimulationRiskPoints(
+            @RequestParam("city") String city,
+            @RequestParam("user_id") String userId,
+            @RequestParam("simulation_day") int simulationDay,
+            @RequestParam("simulation_hour") int simulationHour,
+            @RequestParam("threshold_Infected") int thresholdInfected,
+            @RequestParam(value = "simulation_file_name", required = false, defaultValue = "latestRecord") String simulationFileName) {
+        
+        return simulationRecordService.getSimulationRiskPoints(city, simulationDay, simulationHour, thresholdInfected, simulationFileName, userId);
     }
     @PostMapping("/get_lock_simulation_risk_point")
-    public Map<String, Object> getLockSimulationRiskPoints(@RequestBody Map<String, Object> requestBody) {
-        String city = (String) requestBody.get("city");
-        String userId = (String) requestBody.get("user_id");
-        int simulationDay = (int) requestBody.get("simulation_day");
-        int simulationHour = (int) requestBody.get("simulation_hour");
-        int thresholdInfected = (int) requestBody.get("threshold_Infected");
-        String simulationFileName = requestBody.getOrDefault("simulation_file_name", "latestRecord").toString();
-
-        return simulationRecordService.getLockSimulationRiskPoints(city, simulationDay, simulationHour, thresholdInfected, simulationFileName,userId);
+    public Map<String, Object> getLockSimulationRiskPoints(
+            @RequestParam("city") String city,
+            @RequestParam("user_id") String userId,
+            @RequestParam("simulation_day") int simulationDay,
+            @RequestParam("simulation_hour") int simulationHour,
+            @RequestParam("threshold_Infected") int thresholdInfected,
+            @RequestParam(value = "simulation_file_name", required = false, defaultValue = "latestRecord") String simulationFileName) {
+        
+        return simulationRecordService.getLockSimulationRiskPoints(city, simulationDay, simulationHour, thresholdInfected, simulationFileName, userId);
     }
     @PostMapping("/get_grid_control_policy_func_finish")
-    public Map<String, Object> grid_control_policy(@RequestBody Map<String, Object> requestBody) {
-        String city = (String) requestBody.get("city");
-        String userId = (String) requestBody.get("user_id");
-
-        return simulationRecordService.getgrid_control_policy(city,userId);
+    public Map<String, Object> gridControlPolicy(
+            @RequestParam("city") String city,
+            @RequestParam("user_id") String userId) {
+        
+        return simulationRecordService.getgrid_control_policy(city, userId);
     }
     @PostMapping("/get_city_4_level_name")
-    public Map<String, Object> getCity4LevelName(@RequestBody Map<String, Object> requestBody) {
-        String city = (String) requestBody.get("city");
-        String userId = (String) requestBody.get("user_id");
-
-        return simulationRecordService.getCity4LevelName(city,userId);
+    public Map<String, Object> getCity4LevelName(
+            @RequestParam("city") String city,
+            @RequestParam("user_id") String userId) {
+        
+        return simulationRecordService.getCity4LevelName(city, userId);
     }
     @PostMapping("/get_DSIHR")
     public Map<String, Object> getDSIHR(@RequestParam("file") MultipartFile file,

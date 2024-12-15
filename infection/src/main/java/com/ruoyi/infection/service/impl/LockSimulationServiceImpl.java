@@ -204,14 +204,9 @@ public class LockSimulationServiceImpl implements ILockSimulationService {
     }
 
  @Override
-    public Map<String, Object> getMADDPGRiskPoints(SimulationRequest request) {
+    public Map<String, Object> getMADDPGRiskPoints(String userId,String simulationCity,int simulationDay,int simulationHour,int thresholdInfected,String simulationFileName ) {
         Map<String, Object> response = new HashMap<>();
-        String userId = request.getuserId();
-        String simulationCity = request.getCity();
-        int simulationDay = request.getSimulationDay();
-        int simulationHour = request.getSimulationHour();
-        int thresholdInfected = request.getThresholdInfected();
-        String simulationFileName = request.getSimulationFileName();
+
 
         if (simulationFileName == null || simulationFileName.isEmpty()) {
             simulationFileName = "latestRecord";

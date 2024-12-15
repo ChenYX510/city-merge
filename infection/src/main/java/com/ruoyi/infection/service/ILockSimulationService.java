@@ -9,5 +9,5 @@ public interface ILockSimulationService {
     Map<String, Object> getLockEveryHourInfection(String city, String userId,String simulationFileName);
     Map<String, Object> getEveryHourInfection(String city, String userId,String simulationFileName);
     Map<String, Object> getMADDPGEveryHourInfection(String city,String userId, String simulationFileName);
-    Map<String, Object> getMADDPGRiskPoints(SimulationRequest request);
+    Map<String, Object> getMADDPGRiskPoints(String userId,String simulationCity,int simulationDay,int simulationHour,int thresholdInfected,String simulationFileName );
 }

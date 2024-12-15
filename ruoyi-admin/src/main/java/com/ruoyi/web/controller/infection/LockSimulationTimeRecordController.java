@@ -18,11 +18,12 @@ public class LockSimulationTimeRecordController {
     private ILockSimulationTimeRecordService lockSimulationTimeRecordService;
 
     @PostMapping("/get_lock_simulation_start_time")
-    public String getLockSimulationStartTime(@RequestBody Map<String, String> requestBody) {
-        String city = requestBody.get("city");
-        String startTime = requestBody.get("start_time");
-        String userId = requestBody.get("userId");
-        lockSimulationTimeRecordService.addLockSimulationTimeRecord(city, startTime,userId);
+    public String getLockSimulationStartTime(
+            @RequestParam("city") String city,
+            @RequestParam("start_time") String startTime,
+            @RequestParam("userId") String userId) {
+        
+        lockSimulationTimeRecordService.addLockSimulationTimeRecord(city, startTime, userId);
         return "{\"msg\": \"success\"}";
     }
     @PostMapping("/get_lock_and_maddpg_simulation_time")
@@ -39,26 +40,25 @@ public class LockSimulationTimeRecordController {
         return lockSimulationTimeRecordService.getShpJson(city,userId);
     }
     @PostMapping("/get_policy_result")
-    public Map<String, Object> getPolicyResult(@RequestBody Map<String, Object> requestBody) {
-        String city = (String)requestBody.get("city");
-        int policyDay = (int)requestBody.get("policyday");
-        int policyTime= (int)requestBody.get("policytime");
-        String userId = (String)requestBody.get("userId");
-        String simulationFileName = requestBody.containsKey("simulation_file_name") ? (String) requestBody.get("simulation_file_name") : "latestRecord";
-        return lockSimulationTimeRecordService.getPolicyResult(city, policyDay, policyTime, simulationFileName,userId);
+    public Map<String, Object> getPolicyResult(
+            @RequestParam("city") String city,
+            @RequestParam("policyday") int policyDay,
+            @RequestParam("policytime") int policyTime,
+            @RequestParam("userId") String userId,
+            @RequestParam(value = "simulation_file_name", required = false, defaultValue = "latestRecord") String simulationFileName) {
+        
+        return lockSimulationTimeRecordService.getPolicyResult(city, policyDay, policyTime, simulationFileName, userId);
     }
 
     @PostMapping("/get_MADDPG_simulation_result")
-    public ResponseEntity<Map<String, Object>> getMADDPGSimulationResult(@RequestBody Map<String, Object> requestBody) {
-        String city = (String) requestBody.get("city");
-        String userId = (String) requestBody.get("user_id");
-        int date = (int) requestBody.get("date");
-        int time = (int) requestBody.get("time");
-        String simulationFileName = requestBody.containsKey("simulation_file_name")
-                ? (String) requestBody.get("simulation_file_name")
-                : "latestRecord";
-
-        Map<String, Object> response = lockSimulationTimeRecordService.getMADDPGSimulationResult(city, date, time, simulationFileName,userId);
+    public ResponseEntity<Map<String, Object>> getMADDPGSimulationResult(
+            @RequestParam("city") String city,
+            @RequestParam("user_id") String userId,
+            @RequestParam("date") int date,
+            @RequestParam("time") int time,
+            @RequestParam(value = "simulation_file_name", required = false, defaultValue = "latestRecord") String simulationFileName) {
+        
+        Map<String, Object> response = lockSimulationTimeRecordService.getMADDPGSimulationResult(city, date, time, simulationFileName, userId);
         return ResponseEntity.ok(response);
     }
 }

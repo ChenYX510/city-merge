@@ -296,12 +296,12 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
      * 读取 CSV 文件内容并填充到结果中
      */
     private void readCSVFile(File csvFile, Map<String, Object> result) {
-        List<Integer> S_data = new ArrayList<>();
-        List<Integer> I_data = new ArrayList<>();
-        List<Integer> H_data = new ArrayList<>();
-        List<Integer> R_data = new ArrayList<>();
-        List<Integer> newInfectedData = new ArrayList<>();
-        List<Integer> totalNumData = new ArrayList<>();
+        List<Double> S_data = new ArrayList<>();
+        List<Double> I_data = new ArrayList<>();
+        List<Double> H_data = new ArrayList<>();
+        List<Double> R_data = new ArrayList<>();
+        List<Double> newInfectedData = new ArrayList<>();
+        List<Double> totalNumData = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
             String line;
@@ -314,12 +314,12 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
                 }
 
                 String[] values = line.split(",");
-                S_data.add(Integer.parseInt(values[0]));
-                I_data.add(Integer.parseInt(values[1]));
-                H_data.add(Integer.parseInt(values[2]));
-                R_data.add(Integer.parseInt(values[3]));
-                newInfectedData.add(Integer.parseInt(values[4]));
-                totalNumData.add(Integer.parseInt(values[5]));
+                S_data.add(Double.parseDouble(values[0]));
+                I_data.add(Double.parseDouble(values[1]));
+                H_data.add(Double.parseDouble(values[2]));
+                R_data.add(Double.parseDouble(values[3]));
+                newInfectedData.add(Double.parseDouble(values[4]));
+                totalNumData.add(Double.parseDouble(values[5]));
             }
 
             result.put("S_data", S_data);
@@ -349,6 +349,7 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
                 }
                 String content = contentBuilder.toString();
                 JSONObject jsonObject = JSONObject.parseObject(content);
+                result.put("num_result", numResult);
                 result.put("para_json", jsonObject);
 
                 int plannedSimulationDays = Integer.parseInt(jsonObject.get("simulation_days").toString());
@@ -387,7 +388,7 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
         simulationHour = (simulationDay - 1) * 24 + (simulationHour - 1);
         String filePath = dir + "SIHR_" + simulationHour + ".csv";
         List<List<Object>> riskPoints = new ArrayList<>();
-
+ 
         File csvFile = new File(filePath);
         if (csvFile.exists()) {
             try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {

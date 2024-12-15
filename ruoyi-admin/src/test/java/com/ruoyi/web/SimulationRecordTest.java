@@ -63,21 +63,24 @@ public class SimulationRecordTest {
                 Map<String, Object> responseBody = simulationRecordService.getSimulationResult(city,simulationDay, simulationHour,  simulationFileName, userId);
 
         System.out.println("测试返回数据：" + responseBody);*/
-        //String city = "guangzhou";
-        //String userId = "1";
-        //int simulationDay = 1;
-        //int simulationHour = 1;
-        //int thresholdInfected = 1;
-        //String simulationFileName = "test";
 
-        //Map<String, Object> responseBody =  simulationRecordService.getCity4LevelName(city, userId);
-        //System.out.println("测试返回数据：" + responseBody);
-        String file="D:\\广播台\\韧性城市智能规划\\韧性城市智能规划\\项目输入数据归档\\广州\\GZ_Daily_Infected.xlsx";
+        String city = "chongqing";
+        String userId = "1";
+        Map<String, Object> responseBody =  simulationRecordService.getgrid_control_policy(city,userId);
+        System.out.println("测试返回数据：" + responseBody);
+        /*int simulationDay = 1;
+        int simulationHour = 1;
+        int thresholdInfected = 0;
+        String simulationFileName = "test";
+
+        Map<String, Object> responseBody =  simulationRecordService.getLockSimulationRiskPoints(city,simulationDay,simulationHour,thresholdInfected, simulationFileName,userId);
+        System.out.println("测试返回数据：" + responseBody);*/
+        /*String file="D:\\广播台\\韧性城市智能规划\\韧性城市智能规划\\项目输入数据归档\\广州\\GZ_Daily_Infected.xlsx";
         double I_H_para=0.0136;
         double I_R_para=0.1922;
         double H_R_para=0.111;
         String userId="1";
         Map<String, Object> responseBody =  simulationRecordService.getDSIHR(file,I_H_para,I_R_para,H_R_para,userId);
-        System.out.println("测试返回数据：" + responseBody);
+        System.out.println("测试返回数据：" + responseBody);*/
     }
 }
