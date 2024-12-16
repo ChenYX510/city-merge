@@ -17,13 +17,13 @@ public class GetInfectionTest {
     @Test
     public void testGetMADDPGSimulationRiskPoint() {
         // 模拟请求参数
-        /*
+        
 String city="shanghai";
 String userId="1";
-String filepath="latestRecord";
+String filepath="test";
 
-List<Double>  response = lockSimulationService.getLockEveryHourInfection(city,userId,filepath);
+Map<String, Object> response = lockSimulationService.getLockEveryHourInfection(city,userId,filepath);
 
-         System.out.println( response);*/
+         System.out.println( response);
     }
 }

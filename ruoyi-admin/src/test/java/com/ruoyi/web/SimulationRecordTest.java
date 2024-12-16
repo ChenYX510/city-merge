@@ -64,10 +64,10 @@ public class SimulationRecordTest {
 
         System.out.println("测试返回数据：" + responseBody);*/
 
-        String city = "chongqing";
-        String userId = "1";
-        Map<String, Object> responseBody =  simulationRecordService.getgrid_control_policy(city,userId);
-        System.out.println("测试返回数据：" + responseBody);
+        //String city = "chongqing";
+        //String userId = "1";
+        //Map<String, Object> responseBody =  simulationRecordService.getgrid_control_policy(city,userId);
+        //System.out.println("测试返回数据：" + responseBody);
         /*int simulationDay = 1;
         int simulationHour = 1;
         int thresholdInfected = 0;

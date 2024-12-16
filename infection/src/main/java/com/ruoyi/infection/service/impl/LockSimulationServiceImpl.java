@@ -135,7 +135,7 @@ public class LockSimulationServiceImpl implements ILockSimulationService {
             // 遍历每一行，累加特定列值
             for (CSVRecord record : records) {
                 try {
-                    double value = Double.parseDouble(record.get(2)); // 假设目标列是索引2
+                    double value = Double.parseDouble(record.get("I")); // 假设目标列是索引2
                     sumColumn += value;
                 } catch (NumberFormatException e) {
                     System.err.println("Skipping invalid number in file: " + file);
@@ -157,46 +157,24 @@ public class LockSimulationServiceImpl implements ILockSimulationService {
 
 
     private double loadAndSumInfections(String filePath) {
-        double totalInfections = 0;
-        String line;
-        String csvSplitBy = ","; // 默认分隔符
-        int infectionColumnIndex = -1; // 用于存储感染人数所在的列索引
-    
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            // 读取第一行（表头）
-            String headerLine = br.readLine();
-            if (headerLine != null) {
-                String[] headers = headerLine.split(csvSplitBy);
-    
-                // 查找 'I' 列的索引
-                for (int i = 0; i < headers.length; i++) {
-                    if ("I".equalsIgnoreCase(headers[i].trim())) { // 匹配 'I' 列
-                        infectionColumnIndex = i;
-                        break;
-                    }
-                }
+        double totalInfections=0.0;
+        try (Reader reader = new FileReader(filePath)) {
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT
+            .withHeader("Column1","geometry", "S", "I", "H", "R", "new_infected", "total_num") // 为所有列指定名称
+            .withSkipHeaderRecord(true) // 表头仍然作为数据解析的依据
+            .withTrim()
+            .parse(reader);
+
+        // 遍历每一行，累加特定列值
+        for (CSVRecord record : records) {
+            try {
+                double value = Double.parseDouble(record.get("I")); // 假设目标列是索引2
+                totalInfections += value;
+            } catch (NumberFormatException e) {
+                System.err.println("Skipping invalid number in file: " + filePath);
             }
-    
-            // 如果没有找到感染人数所在的列，抛出异常
-            if (infectionColumnIndex == -1) {
-                throw new IllegalArgumentException("感染人数列 'I' 未在表头中找到");
-            }
-    
-            // 读取每一行并计算感染人数总和
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split(csvSplitBy);
-                if (infectionColumnIndex >= 0 && infectionColumnIndex < values.length) { // 确保列索引有效
-                    try {
-                        // 解析感染人数并累加
-                        double infections = Double.parseDouble(values[infectionColumnIndex]);
-                        totalInfections += infections;
-                    } catch (NumberFormatException e) {
-                        // 如果某行的感染人数值无法解析，跳过该行并打印错误
-                        System.err.println("无法解析感染人数: " + values[infectionColumnIndex] + " 在行: " + line);
-                    }
-                }
-            }
-        } catch (IOException e) {
+        }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     
