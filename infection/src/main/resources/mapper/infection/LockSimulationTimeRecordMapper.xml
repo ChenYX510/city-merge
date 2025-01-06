@@ -42,7 +42,8 @@
         WHERE city_name = #{city} AND state = 'True' AND user_id = #{userId}
         ORDER BY maddpg_result_id DESC LIMIT 1
     </select>
-        <select id="findLatestSimulationId" resultType="Integer">
+
+    <select id="findLatestSimulationId" resultType="Integer">
         SELECT MAX(unlock_result_id) FROM infection_unlock_simulation_result WHERE city_name = #{city} AND user_id = #{userId}
     </select>
 

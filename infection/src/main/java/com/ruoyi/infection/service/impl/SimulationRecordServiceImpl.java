@@ -35,6 +35,8 @@ import java.nio.file.Paths;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
+import org.apache.commons.csv.*;
+import java.io.*;
 
 @Service
 public class SimulationRecordServiceImpl implements ISimulationRecordService {
@@ -46,6 +48,7 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
     };
     @Autowired
     private SimulationRecordMapper simulationRecordMapper;
+    @Autowired
     private LockSimulationTimeRecordMapper LOCKsimulationRecordMapper;
     @Override
     public List<Long> getIdsByCity(String city,String userId) {
@@ -220,14 +223,17 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
 
         File directory = new File(dirPath);
 
+        System.out.println("检查文件夹路径----"+dirPath);
+
         if (directory.exists() && directory.isDirectory()) {
             File[] files = directory.listFiles();
             if (files != null && files.length > 0) {
                 int numResult = (files.length - 1) / 2; // 计算已生成的文件数量
 
                 // 检查目标 CSV 文件是否存在
-                String fileName = "SIHR_" + targetSimulationHour + ".csv";
+                String fileName = "simulation_DSIHR_result_" + targetSimulationHour + ".csv";
                 File resultFile = new File(dirPath + fileName);
+                System.out.println("结果文件路径："+dirPath+fileName);
                 if (resultFile.exists()) {
                     // 读取 CSV 文件内容
                     readCSVFile(resultFile, result);
@@ -245,6 +251,8 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
 
         return result;
     }
+
+
     @Override
     public Map<String, Object> getLockSimulationResult(String city, int simulationDay, int simulationHour, String simulationFileName,String userId) {
         Map<String, Object> result = new HashMap<>();
@@ -272,7 +280,7 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
                 int numResult = (files.length - 1) / 2; // 计算已生成的文件数量
 
                 // 检查目标 CSV 文件是否存在
-                String fileName = "SIHR_" + targetSimulationHour + ".csv";
+                String fileName = "simulation_DSIHR_result_" + targetSimulationHour + ".csv";
                 File resultFile = new File(dirPath + fileName);
                 if (resultFile.exists()) {
                     // 读取 CSV 文件内容
@@ -302,25 +310,38 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
         List<Double> R_data = new ArrayList<>();
         List<Double> newInfectedData = new ArrayList<>();
         List<Double> totalNumData = new ArrayList<>();
+        String state = "not completed";
 
-        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-            String line;
-            boolean isHeader = true;
+        try (Reader reader = new FileReader(csvFile);
+             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
+                     .withHeader("Column1","geometry", "S", "I", "H", "R", "new_infected", "total_num") // 为所有列指定名称
+                     .withSkipHeaderRecord(true)
+                     .withTrim())) {
 
-            while ((line = br.readLine()) != null) {
-                if (isHeader) {
-                    isHeader = false; // 跳过表头
-                    continue;
+            for (CSVRecord record : csvParser) {
+                // 使用 get 方法获取每个列名对应的数据
+                // 如果没有对应的列名会报错，所以需要使用 contains 方法判断列是否存在
+                if (record.isMapped("S")) {
+                    S_data.add(Double.parseDouble(record.get("S")));
                 }
-
-                String[] values = line.split(",");
-                S_data.add(Double.parseDouble(values[0]));
-                I_data.add(Double.parseDouble(values[1]));
-                H_data.add(Double.parseDouble(values[2]));
-                R_data.add(Double.parseDouble(values[3]));
-                newInfectedData.add(Double.parseDouble(values[4]));
-                totalNumData.add(Double.parseDouble(values[5]));
+                if (record.isMapped("I")) {
+                    I_data.add(Double.parseDouble(record.get("I")));
+                }
+                if (record.isMapped("H")) {
+                    H_data.add(Double.parseDouble(record.get("H")));
+                }
+                if (record.isMapped("R")) {
+                    R_data.add(Double.parseDouble(record.get("R")));
+                }
+                if (record.isMapped("new_infected")) {
+                    newInfectedData.add(Double.parseDouble(record.get("new_infected")));
+                }
+                if (record.isMapped("total_num")) {
+                    totalNumData.add(Double.parseDouble(record.get("total_num")));
+                }
             }
+
+            state = "current task completed";
 
             result.put("S_data", S_data);
             result.put("I_data", I_data);
@@ -328,6 +349,7 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
             result.put("R_data", R_data);
             result.put("newInfected_data", newInfectedData);
             result.put("total_num_data", totalNumData);
+            result.put("state", state);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -369,49 +391,52 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
     }
 
     @Override
-    public Map<String, Object> getSimulationRiskPoints(String city, int simulationDay, int simulationHour, int thresholdInfected, String simulationFileName,String userId) {
+    public Map<String, Object> getSimulationRiskPoints(String city, int simulationDay, int simulationHour, int thresholdInfected, String simulationFileName, String userId) {
         Map<String, Object> result = new HashMap<>();
-        String dir = ROOT_FILE+userId+"\\"+"SimulationResult"+"\\"+"unlock_result"+"\\";
-        dir = dir + city + "\\";
+        String dir = ROOT_FILE + userId + "\\" + "SimulationResult" + "\\" + "unlock_result" + "\\" + city + "\\";
+
         if ("latestRecord".equals(simulationFileName)) {
-            Integer maxId = LOCKsimulationRecordMapper.findLatestSimulationId(city,userId);
+            Integer maxId = LOCKsimulationRecordMapper.findLatestSimulationId(city, userId);
             if (maxId == null) {
                 result.put("msg", "没有最新的模拟记录");
                 return result;
             }
-            simulationFileName = LOCKsimulationRecordMapper.findFilePathById(maxId,userId);
+            simulationFileName = LOCKsimulationRecordMapper.findFilePathById(maxId, userId);
             dir += simulationFileName + "\\";
         } else {
             dir += simulationFileName + "\\";
         }
 
         simulationHour = (simulationDay - 1) * 24 + (simulationHour - 1);
-        String filePath = dir + "SIHR_" + simulationHour + ".csv";
+        String filePath = dir + "simulation_DSIHR_result_" + simulationHour + ".csv";
         List<List<Object>> riskPoints = new ArrayList<>();
- 
+
+        System.out.println(filePath);
         File csvFile = new File(filePath);
         if (csvFile.exists()) {
-            try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-                String headerLine = br.readLine(); // 读取并跳过第一行的表头
-                String line;
+            // 调用 readCSVFile 函数来读取 CSV 文件，并获取 I 列数据
+            Map<String, Object> readResult = new HashMap<>();
+            readCSVFile(csvFile, readResult);
 
-                int index = 0; // 用于跟踪当前行号
-                while ((line = br.readLine()) != null) {
-                    String[] values = line.split(","); // 根据逗号分隔字段
+            List<Double> I_data = (List<Double>) readResult.get("I_data");
 
-                    int infected = Integer.parseInt(values[2].trim()); // 假设 I 列是第二列
-
-                    if (infected >= thresholdInfected) {
-                        riskPoints.add(Arrays.asList(index, infected));
-                    }
-                    index++;
-                }
-
-                result.put("msg", riskPoints.isEmpty() ? "没有超过阈值的网格" : "success");
-
-            } catch (IOException e) {
-                result.put("msg", "读取 CSV 文件失败：" + e.getMessage());
+            // 判断是否读取到 I 数据
+            if (I_data == null || I_data.isEmpty()) {
+                result.put("msg", "没有 I 列数据");
+                return result;
             }
+
+            // 遍历 I 数据，筛选出大于阈值的记录
+            int index = 0; // 用于跟踪当前行号
+            for (Double infected : I_data) {
+                if (infected >= thresholdInfected) {
+                    riskPoints.add(Arrays.asList(index, infected));
+                }
+                index++;
+            }
+
+            result.put("msg", riskPoints.isEmpty() ? "没有超过阈值的网格" : "success");
+
         } else {
             result.put("msg", "没有这个时刻的模拟结果");
         }
@@ -419,6 +444,7 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
         result.put("result", riskPoints);
         return result;
     }
+
     @Override
     public Map<String, Object> getLockSimulationRiskPoints(String city, int simulationDay, int simulationHour, int thresholdInfected, String simulationFileName,String userId) {
         Map<String, Object> result = new HashMap<>();
