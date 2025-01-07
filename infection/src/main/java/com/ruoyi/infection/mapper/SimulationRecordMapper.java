@@ -13,4 +13,8 @@ public interface SimulationRecordMapper {
     String findFilePathById(Long id);
     Long findLockLatestIdByCity(@Param("city") String city,@Param("userId") String userId);
     String findLockFilePathById(Long id);
+    String getLatestFilePath(@Param("city") String city,
+                             @Param("resultTable") String resultTable,
+                             @Param("resultColumn") String resultColumn,
+                             @Param("userId") String userId);
 }

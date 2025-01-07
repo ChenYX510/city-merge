@@ -251,6 +251,7 @@ public class LockSimulationTimeRecordServiceImpl implements ILockSimulationTimeR
         }
         String filePath = ROOT_FILE + userId + "\\grid_coefficient\\" + city + "\\" + policyFileName + "\\" + policyHourPre + "-" + policyHour + "_grid.shp";
 
+        System.out.println("策略文件路径："+ filePath);
         if (Files.exists(Paths.get(filePath))) {
             try {
                 return processShapefile(filePath);

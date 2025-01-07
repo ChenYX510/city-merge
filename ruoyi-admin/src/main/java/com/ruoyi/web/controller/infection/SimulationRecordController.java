@@ -6,6 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.ruoyi.common.core.domain.AjaxResult;
 
@@ -14,6 +18,11 @@ import java.util.Map;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.io.FileInputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
+
+
 
 @RestController
 public class SimulationRecordController {
@@ -162,4 +171,55 @@ String strCurrentTimeMillis = String.valueOf(System.currentTimeMillis());
         }
         return fileName.substring(lastIndexOfDot + 1).toLowerCase();
     }
+
+    @GetMapping("/download_simulation_file")
+    public void downloadSimulationFile(
+            @RequestParam String city,
+            @RequestParam String userId,
+            @RequestParam int simulationDay,
+            @RequestParam int simulationHour,
+            @RequestParam String simulationType,
+            @RequestParam(required = false) String simulationFileName,
+            HttpServletResponse response) throws IOException {
+
+        if (simulationFileName == null) {
+            simulationFileName = "latestRecord";
+        }
+
+        // Get the file path from the service
+        String filePath = simulationRecordService.getSimulationFilePath(userId, city, simulationDay, simulationHour, simulationType, simulationFileName);
+
+        if (filePath != null) {
+            File file = new File(filePath);
+            if (file.exists()) {
+                // Set response headers for file download
+                response.setContentType("application/csv");
+
+                // Build the filename as "simulation_DSIHR_result_<simulation_hour>.csv"
+                String fileName = "simulation_DSIHR_result_" + simulationHour + ".csv";
+                response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+                // Use traditional I/O to copy file content to the response's output stream
+                try (FileInputStream fis = new FileInputStream(file);
+                     OutputStream os = response.getOutputStream()) {
+
+                    byte[] buffer = new byte[1024];  // buffer to read file data
+                    int bytesRead;
+                    while ((bytesRead = fis.read(buffer)) != -1) {
+                        os.write(buffer, 0, bytesRead);  // write data to response output stream
+                    }
+                }
+            } else {
+                // File doesn't exist, send an error message
+                response.setContentType("application/json");
+                response.getWriter().write("{\"msg\": \"无当前时刻的模拟结果\"}");
+            }
+        } else {
+            // Simulation file path is null, send an error message
+            response.setContentType("application/json");
+            response.getWriter().write("{\"msg\": \"没有最新的模拟记录\"}");
+        }
+    }
+
+
 }

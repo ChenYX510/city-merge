@@ -31,14 +31,14 @@
     <!-- 根据时间获取自动封控模拟记录 -->
     <select id="getMaddpgSimulationTimeByTime" resultType="map">
         SELECT maddpg_start_time, maddpg_end_time, simulation_start_time, simulation_end_time
-        FROM maddpg_simulation_result
+        FROM infection_maddpg_simulation_result
         WHERE simulation_start_time = #{time} AND user_id = #{userId}
     </select>
 
     <!-- 获取最新的自动封控模拟记录 -->
     <select id="getLatestMaddpgSimulationTime" resultType="map">
         SELECT maddpg_start_time, maddpg_end_time, simulation_start_time, simulation_end_time
-        FROM maddpg_simulation_result
+        FROM infection_maddpg_simulation_result
         WHERE city_name = #{city} AND state = 'True' AND user_id = #{userId}
         ORDER BY maddpg_result_id DESC LIMIT 1
     </select>
@@ -63,13 +63,13 @@
     </select>
         <select id="getLatestRecordId" resultType="long">
         SELECT MAX(maddpg_result_id)
-        FROM maddpg_simulation_result
+        FROM infection_maddpg_simulation_result
         WHERE city_name = #{city} AND user_id = #{userId}
     </select>
 
     <select id="getFilepathById" resultType="string">
         SELECT filepath
-        FROM maddpg_simulation_result
+        FROM infection_maddpg_simulation_result
         WHERE maddpg_result_id = #{id}
     </select>
 </mapper>

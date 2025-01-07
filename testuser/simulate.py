@@ -196,8 +196,8 @@ def simulate_step(time_index, S_0, I_0, H_0, R_0, N_0, OD, simulation_para, grid
     simulation_result = simulation_result.T
     simulation_result = pd.DataFrame(simulation_result)
     simulation_result.columns = ['geometry', 'S', 'I', 'H', 'R', 'new_infected', 'total_num']
-    simulation_result.to_csv(f"{output_dir}/simulation_DSIHR_result_{time_index}.csv")
-
+    # 将 CSV 输出时不保存行索引
+    simulation_result.to_csv(f"{output_dir}/simulation_DSIHR_result_{time_index}.csv", index=False)
     return S_0, I_0, H_0, R_0
 
 

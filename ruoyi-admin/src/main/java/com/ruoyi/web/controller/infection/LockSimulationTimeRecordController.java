@@ -42,8 +42,8 @@ public class LockSimulationTimeRecordController {
     @PostMapping("/get_policy_result")
     public Map<String, Object> getPolicyResult(
             @RequestParam("city") String city,
-            @RequestParam("policyday") int policyDay,
-            @RequestParam("policytime") int policyTime,
+            @RequestParam("policy_day") int policyDay,
+            @RequestParam("policy_time") int policyTime,
             @RequestParam("userId") String userId,
             @RequestParam(value = "simulation_file_name", required = false, defaultValue = "latestRecord") String simulationFileName) {
         

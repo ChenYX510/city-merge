@@ -21,4 +21,5 @@ public interface ISimulationRecordService {
     Map<String, Object> getgrid_control_policy(String city,String userId);
     Map<String, Object> getCity4LevelName(String city,String userId);
     Map<String, Object> getDSIHR(String file,double I_H_para,double I_R_para,double H_R_para,String userId);
+    String getSimulationFilePath(String userId, String city, int simulationDay, int simulationHour, String simulationType, String simulationFileName);
 }

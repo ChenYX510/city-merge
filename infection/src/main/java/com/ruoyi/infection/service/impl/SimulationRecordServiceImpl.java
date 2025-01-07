@@ -463,7 +463,7 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
         }
 
         simulationHour = (simulationDay - 1) * 24 + (simulationHour - 1);
-        String filePath = dir + "SIHR_" + simulationHour + ".csv";
+        String filePath = dir + "simulation_DSIHR_result_" + simulationHour + ".csv";
         List<List<Object>> riskPoints = new ArrayList<>();
 
         File csvFile = new File(filePath);
@@ -571,6 +571,51 @@ public class SimulationRecordServiceImpl implements ISimulationRecordService {
 
         return result;
     }
+
+    @Override
+    public String getSimulationFilePath(String userId, String city, int simulationDay, int simulationHour, String simulationType, String simulationFileName) {
+        int simulationHourAdjusted = (simulationDay - 1) * 24 + (simulationHour - 1);
+        String queryFileName = "";
+        String resultTable = "";
+        String resultColumn = "";
+        String resultName = "";
+        String filePath = "";
+
+        String dirPath = ROOT_FILE+userId+"\\SimulationResult\\";
+        switch (simulationType) {
+            case "none_type":
+                resultTable = "infection_unlock_simulation_result";
+                resultColumn = "unlock_result_id";
+                resultName = "unlock_result";
+                //filePath = dirPath + resultName + "\\" + city + "\\" + queryFileName + "\\simulation_DSIHR_result_" + simulationHourAdjusted + ".csv";
+                break;
+            case "lock_type":
+                resultTable = "infection_lock_simulation_result";
+                resultColumn = "lock_result_id";
+                resultName = "lock_result";
+                //filePath = dirPath + resultName + "\\" + city + "\\" + queryFileName + "\\simulation_DSIHR_result_" + simulationHourAdjusted + ".csv";
+                break;
+            case "MADDPG_type":
+                resultTable = "infection_maddpg_simulation_result";
+                resultColumn = "maddpg_result_id";
+                resultName = "MADDPG_result";
+                //filePath = dirPath + resultName + "\\" + city + "\\" + queryFileName + "\\simulation_DSIHR_result_" + simulationHourAdjusted + ".csv";
+                break;
+            default:
+        }
+
+        if ("latestRecord".equals(simulationFileName)) {
+            queryFileName = simulationRecordMapper.getLatestFilePath(city, resultTable, resultColumn, userId);
+            if (queryFileName == null) {
+                return null;
+            }
+        } else {
+            queryFileName = simulationFileName;
+        }
+        filePath = dirPath + resultName + "\\" + city + "\\" + queryFileName + "\\simulation_DSIHR_result_" + simulationHourAdjusted + ".csv";
+        return filePath;
+    }
+
     public static Map<String, Object> callPythonScript(String pythonExecutable, String scriptPath,
                                                        double I_H_para, double I_R_para, double H_R_para,
                                                        String filepath) {

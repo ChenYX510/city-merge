@@ -21,7 +21,7 @@
             <when test="resultTable == 'infection_lock_simulation_result'">
                 user_id, lock_result_id, filepath, city_name, state
             </when>
-            <when test="resultTable == 'maddpg_simulation_result'">
+            <when test="resultTable == 'infection_maddpg_simulation_result'">
                 user_id, maddpg_result_id, filepath, city_name, state, policy_id
             </when>
         </choose>
@@ -35,7 +35,7 @@
             <when test="resultTable == 'infection_lock_simulation_result'">
                 #{userId}, #{resultId}, #{filepath}, #{cityName}, #{state}
             </when>
-            <when test="resultTable == 'maddpg_simulation_result'">
+            <when test="resultTable == 'infection_maddpg_simulation_result'">
                 #{userId}, #{resultId}, #{filepath}, #{cityName}, #{state}, #{policyId}
             </when>
         </choose>
@@ -86,9 +86,9 @@
         SELECT unlock_result_id
         FROM maddpg_policy_record
         WHERE policy_id = (
-        SELECT MAX(policy_id)
-        FROM maddpg_policy_record
-        WHERE user_id = #{userId}
+            SELECT MAX(policy_id)
+            FROM maddpg_policy_record
+            WHERE user_id = #{userId}
         )
     </select>
 
@@ -107,7 +107,7 @@
     </select>
 
     <!-- 根据文件路径获取 simulation_id -->
-    <select id="getSimulationIdByFilePath" resultType="java.lang.Long">
+    <select id="getSimulationIdByFilePath" resultType="java.lang.Integer">
         SELECT unlock_result_id
         FROM infection_unlock_simulation_result
         WHERE filepath = #{simulationFileName} AND user_id = #{userId}

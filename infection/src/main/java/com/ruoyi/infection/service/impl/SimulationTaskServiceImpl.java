@@ -316,6 +316,8 @@ public class SimulationTaskServiceImpl implements ISimulationTaskService {
                 // 根据传入的文件名获取 simulation_id
                 unlockSimulationId = simulationTaskMapper.getSimulationIdByFilePath(userId, simulationFileName);
 
+                System.out.println("模拟文件ID："+ unlockSimulationId);
+
                 if (unlockSimulationId == null || unlockSimulationId == 0) {
                     result.put("status", false);
                     result.put("msg", "没有当前请求的模拟");
@@ -624,7 +626,7 @@ public class SimulationTaskServiceImpl implements ISimulationTaskService {
                 break;
             case "MADDPG_type":
                 resultColumn = "maddpg_result_id";
-                resultTable = "maddpg_simulation_result";
+                resultTable = "infection_maddpg_simulation_result";
                 break;
             default:
                 logger.warning("Invalid funcType provided: " + funcType);
@@ -647,7 +649,7 @@ public class SimulationTaskServiceImpl implements ISimulationTaskService {
                 resultTable = "infection_lock_simulation_result";
                 break;
             case "MADDPG_type":
-                resultTable = "maddpg_simulation_result";
+                resultTable = "infection_maddpg_simulation_result";
                 break;
             default:
                 logger.warning("Invalid funcType provided: " + funcType);
@@ -688,7 +690,7 @@ public class SimulationTaskServiceImpl implements ISimulationTaskService {
                 resultColumn = "lock_result";
                 break;
             case "MADDPG_type":
-                resultTable = "maddpg_simulation_result";
+                resultTable = "infection_maddpg_simulation_result";
                 resultColumn = "maddpg_result";
                 break;
             default:
